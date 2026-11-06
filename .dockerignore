@@ -1,0 +1,9 @@
+.git
+.env
+.venv
+__pycache__
+video
+uploads
+logs
+*.webm
+*.zip

@@ -1,0 +1,4 @@
+# Web service (installed into the Docker image).
+flask==3.1.3
+psycopg2==2.9.13
+mod-wsgi==6.1.1

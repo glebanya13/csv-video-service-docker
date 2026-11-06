@@ -1,0 +1,39 @@
+# Two containers: web (Apache + mod_wsgi + Flask) and db (PostgreSQL 16).
+# Credentials are read from .env (copy .env.example); the defaults below are for local dev only.
+
+services:
+  web:
+    build: .
+    ports:
+      - "${WEB_PORT:-8000}:80"      # host 8000 -> Apache 80 inside the container
+    volumes:
+      - uploads:/app/uploads
+    environment:
+      DB_HOST: db
+      DB_PORT: 5432
+      DB_NAME: ${DB_NAME:-videos}
+      DB_USER: ${DB_USER:-video_user}
+      DB_PASSWORD: ${DB_PASSWORD:-video_pass}
+    depends_on:
+      db:
+        condition: service_healthy
+    restart: unless-stopped
+
+  db:
+    image: postgres:16
+    environment:
+      POSTGRES_DB: ${DB_NAME:-videos}
+      POSTGRES_USER: ${DB_USER:-video_user}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-video_pass}
+    volumes:
+      - db_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U \"$$POSTGRES_USER\" -d \"$$POSTGRES_DB\""]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+    restart: unless-stopped
+
+volumes:
+  db_data:
+  uploads:
