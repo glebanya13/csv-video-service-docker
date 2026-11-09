@@ -31,6 +31,9 @@ RUN a2ensite video-service
 
 WORKDIR /app
 COPY web_service.py web_service.wsgi docker-entrypoint.sh ./
+# Do not rely on the host's file mode or line endings: a copy made via Windows or a zip
+# loses the +x bit and may turn LF into CRLF ("permission denied" / "no such file").
+RUN sed -i 's/\r$//' docker-entrypoint.sh && chmod 755 docker-entrypoint.sh
 # The named volume is mounted here; on first use Docker copies this owner into it.
 RUN mkdir -p /app/uploads && chown www-data:www-data /app/uploads
 
